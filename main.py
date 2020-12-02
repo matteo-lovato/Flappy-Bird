@@ -79,6 +79,10 @@ def update_score(score, high_score):
     screen.blit(game_over_surface, game_over_rect)
     return high_score
 
+# init the sound mixer
+# low the quality of the sound to play it instantly
+pygame.mixer.pre_init(frequency = 44100, size = 16, channels = 1, buffer = 512)
+# init pygame
 pygame.init()
 screen = pygame.display.set_mode((576,1024))
 clock = pygame.time.Clock()
@@ -134,6 +138,9 @@ pygame.time.set_timer(SPAWNPIPE, 1200)
 # different heights for pipes
 pipe_heights = [400,600,800]
 
+# load sound
+flap_sound = pygame.mixer.Sound('sound/sfx_wing.wav')
+
 # game loop
 while True:
     # look for events
@@ -143,9 +150,11 @@ while True:
             pygame.quit()
             sys.exit()
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE and game_active:
+            if event.key == pygame.K_SPACE and game_active:    
                 bird_movement = 0
                 bird_movement -= 12
+                # play wing sound
+                # flap_sound.play()
             if event.key == pygame.K_SPACE and game_active == False:
                 # restart the game
                 game_active = True
