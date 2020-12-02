@@ -39,7 +39,7 @@ def draw_pipes(pipes):
 
 def check_collision(pipes):
     global can_score
-    
+
     for pipe in pipes:
         if bird_rect.colliderect(pipe):
             death_sound.play()
@@ -169,8 +169,6 @@ pipe_heights = [400,600,800]
 flap_sound = pygame.mixer.Sound('sound/sfx_wing.wav')
 death_sound = pygame.mixer.Sound('sound/sfx_hit.wav')
 score_sound = pygame.mixer.Sound('sound/sfx_point.wav')
-# countdown to play score sound
-score_sound_countdown = 100
 
 # game loop
 while True:
