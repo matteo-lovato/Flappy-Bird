@@ -36,7 +36,17 @@ def draw_pipes(pipes):
             flip_pipe = pygame.transform.flip(pipe_surface, False, True)
             # draw it
             screen.blit(flip_pipe, pipe)
-            
+
+def check_collision(pipes):
+    for pipe in pipes:
+        if bird_rect.colliderect(pipe):
+            return False
+    # if collision with roof or floor
+    if bird_rect.top <= -100 or bird_rect.bottom >= 900:
+        return False
+
+    return True
+
 pygame.init()
 screen = pygame.display.set_mode((576,1024))
 clock = pygame.time.Clock()
@@ -44,7 +54,7 @@ clock = pygame.time.Clock()
 # game variables
 gravity = 0.25
 bird_movement = 0
-
+game_active = True
 
 # get image from assets
 bg_surface = pygame.image.load('assets/background-day.png').convert() #convert help pygame to work with that image
@@ -80,26 +90,34 @@ while True:
             pygame.quit()
             sys.exit()
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
+            if event.key == pygame.K_SPACE and game_active:
                 bird_movement = 0
                 bird_movement -= 12
+            if event.key == pygame.K_SPACE and game_active == False:
+                game_active = True
+                pipe_list.clear()
+                bird_rect.center = (100, 512)
+                bird_movement = 0
+                
         if event.type == SPAWNPIPE:
             # append a new pipe to the list
             pipe_list.extend(create_pipe())
     # draw background
     screen.blit(bg_surface,(0,0))
+    if game_active:
+        # add gravity to the bird
+        bird_movement += gravity
+        # update bird position
+        bird_rect.centery += bird_movement
+        
+        # update pipes position
+        pipe_list = move_pipes(pipe_list)
+        draw_pipes(pipe_list)
 
-    # add gravity to the bird
-    bird_movement += gravity
-    # update bird position
-    bird_rect.centery += bird_movement
-    
-    # update pipes position
-    pipe_list = move_pipes(pipe_list)
-    draw_pipes(pipe_list)
+        game_active = check_collision(pipe_list)
 
-    # draw bird
-    screen.blit(bird_surface, bird_rect)
+        # draw bird
+        screen.blit(bird_surface, bird_rect)
     # move floor ( games logic: player is still and the universe moves )
     floor_x_pos -= 1
     # update floor position
