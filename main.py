@@ -56,6 +56,26 @@ def bird_animation():
     new_bird_rect = new_bird.get_rect(center = (100, bird_rect.centery))
     return new_bird, new_bird_rect
 
+def score_display(game_state):
+    if game_state == True:
+        score_surface = game_font.render(f'Score: {int(score)}', True, (255,255,255))
+        score_rect = score_surface.get_rect(center = (288, 100))
+        screen.blit(score_surface, score_rect)
+
+    if game_state == False:
+        score_surface = game_font.render(f'Score: {int(score)}', True, (255,255,255))
+        score_rect = score_surface.get_rect(center = (288, 100))
+        screen.blit(score_surface, score_rect)
+
+        high_score_surface = game_font.render(f'High Score: {int(high_score)}', True, (255,255,255))
+        high_score_rect = high_score_surface.get_rect(center = (288, 850))
+        screen.blit(high_score_surface, high_score_rect)
+
+def update_score(score, high_score):
+    if high_score < score:
+        high_score = score
+    return high_score
+
 pygame.init()
 screen = pygame.display.set_mode((576,1024))
 clock = pygame.time.Clock()
@@ -124,10 +144,13 @@ while True:
                 bird_movement = 0
                 bird_movement -= 12
             if event.key == pygame.K_SPACE and game_active == False:
+                # restart the game
                 game_active = True
+                # reset variables
                 pipe_list.clear()
                 bird_rect.center = (100, 512)
                 bird_movement = 0
+                score = 0
                 
         if event.type == SPAWNPIPE:
             # append a new pipe to the list
@@ -156,7 +179,11 @@ while True:
         draw_pipes(pipe_list)
 
         game_active = check_collision(pipe_list)
-
+        
+        score += 0.01
+    else:
+        high_score = update_score(score, high_score)
+    score_display(game_active)
         
     # move floor ( games logic: player is still and the universe moves )
     floor_x_pos -= 1
