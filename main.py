@@ -40,9 +40,11 @@ def draw_pipes(pipes):
 def check_collision(pipes):
     for pipe in pipes:
         if bird_rect.colliderect(pipe):
+            death_sound.play()
             return False
     # if collision with roof or floor
     if bird_rect.top <= -100 or bird_rect.bottom >= 900:
+        death_sound.play()
         return False
 
     return True
@@ -57,16 +59,25 @@ def bird_animation():
     return new_bird, new_bird_rect
 
 def score_display(game_state):
+    # if playing display score
     if game_state == True:
         score_surface = game_font.render(f'Score: {int(score)}', True, (255,255,255))
         score_rect = score_surface.get_rect(center = (288, 100))
         screen.blit(score_surface, score_rect)
-
+    
+    # if game over display score and high score
     if game_state == False:
+        # display score
         score_surface = game_font.render(f'Score: {int(score)}', True, (255,255,255))
         score_rect = score_surface.get_rect(center = (288, 100))
         screen.blit(score_surface, score_rect)
 
+        # display game over image
+        game_over_surface = pygame.transform.scale2x(pygame.image.load('assets/message.png').convert_alpha())
+        game_over_rect = game_over_surface.get_rect(center = (288, 512))
+        screen.blit(game_over_surface, game_over_rect)
+
+        # display high score
         high_score_surface = game_font.render(f'High Score: {int(high_score)}', True, (255,255,255))
         high_score_rect = high_score_surface.get_rect(center = (288, 850))
         screen.blit(high_score_surface, high_score_rect)
@@ -74,14 +85,11 @@ def score_display(game_state):
 def update_score(score, high_score):
     if high_score < score:
         high_score = score
-    game_over_surface = pygame.transform.scale2x(pygame.image.load('assets/message.png').convert_alpha())
-    game_over_rect = game_over_surface.get_rect(center = (288, 512))
-    screen.blit(game_over_surface, game_over_rect)
     return high_score
 
 # init the sound mixer
 # low the quality of the sound to play it instantly
-pygame.mixer.pre_init(frequency = 44100, size = 16, channels = 1, buffer = 512)
+# pygame.mixer.pre_init(frequency = 44100, size = 16, channels = 1, buffer = 512)
 # init pygame
 pygame.init()
 screen = pygame.display.set_mode((576,1024))
@@ -140,6 +148,10 @@ pipe_heights = [400,600,800]
 
 # load sound
 flap_sound = pygame.mixer.Sound('sound/sfx_wing.wav')
+death_sound = pygame.mixer.Sound('sound/sfx_hit.wav')
+score_sound = pygame.mixer.Sound('sound/sfx_point.wav')
+# countdown to play score sound
+score_sound_countdown = 100
 
 # game loop
 while True:
@@ -154,7 +166,7 @@ while True:
                 bird_movement = 0
                 bird_movement -= 12
                 # play wing sound
-                # flap_sound.play()
+                flap_sound.play()
             if event.key == pygame.K_SPACE and game_active == False:
                 # restart the game
                 game_active = True
@@ -176,6 +188,10 @@ while True:
             
     # draw background
     screen.blit(bg_surface,(0,0))
+
+    # display the score and the high score
+    score_display(game_active)
+    
     if game_active:
         # add gravity to the bird
         bird_movement += gravity
@@ -193,9 +209,15 @@ while True:
         game_active = check_collision(pipe_list)
         
         score += 0.01
+        score_sound_countdown -= 1
+        if score_sound_countdown <= 0:
+            score_sound.play()
+            score_sound_countdown = 100
+        
     else:
         high_score = update_score(score, high_score)
-    score_display(game_active)
+
+    
         
     # move floor ( games logic: player is still and the universe moves )
     floor_x_pos -= 1
