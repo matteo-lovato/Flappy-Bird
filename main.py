@@ -74,6 +74,9 @@ def score_display(game_state):
 def update_score(score, high_score):
     if high_score < score:
         high_score = score
+    game_over_surface = pygame.transform.scale2x(pygame.image.load('assets/message.png').convert_alpha())
+    game_over_rect = game_over_surface.get_rect(center = (288, 512))
+    screen.blit(game_over_surface, game_over_rect)
     return high_score
 
 pygame.init()
