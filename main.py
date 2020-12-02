@@ -21,8 +21,9 @@ def move_pipes(pipes):
     # get the list of pipes and move them left
     for pipe in pipes:
         pipe.centerx -= 5
+    visible_pipes = [pipe for pipe in pipes if pipe.right > -50]
     # return the updated list of pipes
-    return pipes
+    return visible_pipes
 
 def draw_pipes(pipes):
     for pipe in pipes:
